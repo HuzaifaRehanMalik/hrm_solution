@@ -8,6 +8,15 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      # eslint-config-next (eslint-plugin-react, -import, -jsx-a11y) only
+      # supports ESLint <=9. Unpin once eslint-config-next supports ESLint 10.
+      - dependency-name: eslint
+        update-types: [version-update:semver-major]
+      # typescript-eslint (used by eslint-config-next) supports TS <6.1 only.
+      # Unpin once typescript-eslint supports TypeScript 7.
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
   - package-ecosystem: github-actions
     directory: /
     schedule:
