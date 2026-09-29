@@ -1,22 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0c;
-  --surface: #131315;
-  --foreground: #f2f1ed;
-  --muted: #9d9d97;
-  --border: #313134;
-  --accent: #ff8a3d;
-  --accent-foreground: #100a05;
+  --background: #040a10;
+  --surface: #0a141c;
+  --surface-raised: #0e1a24;
+  --foreground: #e9f3f6;
+  --muted: #8ea4b0;
+  --border: #1a2b37;
+  --border-strong: #26414f;
+  --brand: #287b83;
+  --accent: #5ce1e6;
+  --accent-deep: #2db8c4;
+  --accent-foreground: #032025;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-brand: var(--brand);
   --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
   --color-accent-foreground: var(--accent-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -34,13 +42,202 @@ body {
 
 :focus-visible {
   outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Ambient teal light, as in the brand banner. */
+.bg-aurora {
+  background-image:
+    radial-gradient(
+      60rem 40rem at 85% -10%,
+      color-mix(in oklab, var(--accent) 16%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      45rem 35rem at 0% 30%,
+      color-mix(in oklab, var(--brand) 22%, transparent),
+      transparent 65%
+    );
 }
 
 .bg-grid {
   background-image:
     linear-gradient(to right, var(--border) 1px, transparent 1px),
     linear-gradient(to bottom, var(--border) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: linear-gradient(to bottom, black, transparent 85%);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(70% 60% at 50% 0%, black, transparent 80%);
+}
+
+/* Card surface with a lit top edge. */
+.card {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--accent) 4%, transparent),
+      transparent 45%
+    ),
+    var(--surface);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.card-hover:hover,
+.card-hover:focus-within {
+  border-color: color-mix(in oklab, var(--accent) 55%, var(--border));
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--accent) 18%, transparent),
+    0 22px 48px -22px color-mix(in oklab, var(--accent) 65%, transparent);
+  transform: translateY(-3px) scale(1.01);
+}
+
+.divider-glow {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--accent) 55%, transparent),
+    transparent
+  );
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal.is-visible .divider-glow {
+  transform: scaleX(1);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Motion: entrance, scroll reveal, ambient glow, tactile buttons.        */
+/* ---------------------------------------------------------------------- */
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow-drift {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translate3d(0, -2%, 0) scale(1.08);
+  }
+}
+
+/* Hero entrance: fades/slides up once on load, staggered via --hero-delay. */
+.hero-enter {
+  opacity: 0;
+  animation: fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--hero-delay, 0ms);
+}
+
+/* Soft ambient light behind the hero logo mark. Deliberately borderless and
+   blurred into a blob rather than a crisp circle, it's ambience, not a badge. */
+.hero-ambient-glow {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--accent) 35%, transparent),
+    transparent 72%
+  );
+  filter: blur(32px);
+  animation: glow-drift 7s ease-in-out infinite;
+}
+
+/* Scroll reveal: opacity/transform only so nothing shifts layout. Toggled
+   once by useReveal(), staggered per item via --reveal-delay. */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 650ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 650ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Tactile accent buttons: lift/press feedback, no abrupt state jumps. */
+.btn-tactile {
+  transition:
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 180ms ease,
+    opacity 180ms ease;
+}
+
+.btn-tactile:not(:disabled):hover {
+  transform: translateY(-1px) scale(1.015);
+  box-shadow: 0 14px 34px -16px color-mix(in oklab, var(--accent) 70%, transparent);
+}
+
+.btn-tactile:not(:disabled):active {
+  transform: translateY(0) scale(0.985);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal,
+  .hero-enter {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .divider-glow,
+  .reveal.is-visible .divider-glow {
+    transform: scaleX(1) !important;
+  }
+
+  .card-hover:hover,
+  .card-hover:focus-within,
+  .btn-tactile:not(:disabled):hover,
+  .btn-tactile:not(:disabled):active {
+    transform: none !important;
+  }
+}
+
+/* The hero logo mark, graded from bright cyan into the deep brand teal.
+   The PNG is used as a mask so the gradient shows through the artwork. */
+.logo-graded {
+  -webkit-mask-image: url("/hero-mark.webp");
+  mask-image: url("/hero-mark.webp");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  background-image: linear-gradient(
+    158deg,
+    #8df3f8 0%,
+    var(--accent) 32%,
+    var(--accent-deep) 66%,
+    var(--brand) 100%
+  );
 }

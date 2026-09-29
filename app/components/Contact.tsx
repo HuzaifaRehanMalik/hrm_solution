@@ -1,41 +1,74 @@
+import ContactForm from "@/app/components/ContactForm";
 import SectionHeading from "@/app/components/SectionHeading";
-import { siteConfig } from "@/app/data/portfolio";
-
-const fields = [
-  { label: "EMAIL", value: siteConfig.email },
-  { label: "GITHUB", value: siteConfig.github },
-  { label: "LINKEDIN", value: siteConfig.linkedin },
-];
+import { siteConfig } from "@/app/data/site";
 
 export default function Contact() {
   return (
     <section
       id="contact"
       aria-label="Contact"
-      className="px-6 py-24 sm:px-10 lg:px-16"
+      className="relative scroll-mt-24 overflow-hidden px-5 py-20 sm:px-8 sm:py-28"
     >
-      <SectionHeading index="03" title="Contact" />
+      <div aria-hidden="true" className="absolute inset-0 bg-aurora opacity-70" />
 
-      <div className="relative border border-border bg-surface p-8 sm:p-12">
-        <p className="font-mono text-sm text-accent">$ contact --init</p>
-        <h3 className="mt-4 max-w-lg text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-          Let&apos;s build something worth shipping.
-        </h3>
-        <p className="mt-4 max-w-lg text-muted">
-          Open to full-stack and AI/agent-focused work. Reach out through any
-          of the fields below.
-        </p>
+      <div className="relative mx-auto max-w-7xl">
+        <SectionHeading
+          eyebrow="Let's build together"
+          title="Tell us what is eating your team's time"
+          description="Describe the task in a few sentences. You'll get an honest answer on whether it is worth automating, and a rough scope if it is."
+        />
 
-        <dl className="mt-10 grid grid-cols-1 gap-6 border-t border-border pt-6 md:grid-cols-3">
-          {fields.map((field) => (
-            <div key={field.label}>
-              <dt className="font-mono text-xs tracking-widest text-muted">
-                {field.label}
-              </dt>
-              <dd className="mt-2 text-sm text-foreground">{field.value}</dd>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
+          <div className="lg:col-span-3">
+            <ContactForm />
+          </div>
+
+          <div className="flex flex-col gap-5 lg:col-span-2">
+            <div className="card p-6 sm:p-7">
+              <p className="font-mono text-xs tracking-[0.2em] text-accent">
+                DIRECT
+              </p>
+              <a
+                href={`mailto:${siteConfig.email}`}
+                className="mt-3 block break-all text-base text-foreground transition-colors hover:text-accent"
+              >
+                {siteConfig.email}
+              </a>
+              <p className="mt-3 text-sm leading-relaxed text-muted">
+                Prefer email? Write directly and you&apos;ll reach the same
+                inbox.
+              </p>
             </div>
-          ))}
-        </dl>
+
+            <div className="card flex-1 p-6 sm:p-7">
+              <p className="font-mono text-xs tracking-[0.2em] text-accent">
+                WHAT HAPPENS NEXT
+              </p>
+              <ol className="mt-4 space-y-4 text-sm leading-relaxed text-muted">
+                <li className="flex gap-3">
+                  <span className="font-mono text-accent">1</span>
+                  <span>
+                    A reply within one working day, with questions if the scope
+                    is unclear.
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="font-mono text-accent">2</span>
+                  <span>
+                    A short call to walk through how the task is done today.
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <span className="font-mono text-accent">3</span>
+                  <span>
+                    A written scope with a fixed outcome, timeline and price
+                    before anything is built.
+                  </span>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

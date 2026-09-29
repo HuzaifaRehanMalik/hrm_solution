@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HRM Solution — company website
 
-## Getting Started
+Marketing site for HRM Solution: AI agents, workflow automation, internal tools
+and custom software for businesses.
 
-First, run the development server:
+Built with [Next.js](https://nextjs.org) (App Router) and Tailwind CSS v4.
+
+## Running locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database (Neon)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Contact enquiries and page analytics are stored in [Neon](https://neon.tech)
+Postgres, through the `@neondatabase/serverless` HTTP driver — no connection
+pooling to manage on Vercel.
 
-## Learn More
+1. Create a Neon project and copy the **pooled** connection string.
+2. Copy `.env.example` to `.env.local` and set `DATABASE_URL`.
+3. Create the tables:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run db:init
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The script is idempotent — run it again any time.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Tables
 
-## Deploy on Vercel
+| Table | Holds |
+| --- | --- |
+| `enquiries` | Contact form submissions: name, email, company, message, status (`new` / `accomplished`), IP, user agent, referrer, timestamp. |
+| `analytics_events` | `page_view` rows and `service_click` rows (`label` is the service name), with path, referrer, user agent and timestamp. |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Without `DATABASE_URL` the site still builds and renders. The contact form
+returns a clear "not connected yet" message rather than losing the enquiry
+silently, and analytics events are dropped without affecting the page.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Environment variables
+
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL` | Required. Neon pooled connection string. The only external service this site talks to. |
+
+On Vercel, add it under **Project → Settings → Environment Variables**.
+
+## Admin dashboard
+
+`/admin` shows enquiries (mark accomplished, delete) and page-view analytics.
+There is exactly one admin account, the email in `app/lib/auth.ts`.
+
+```bash
+npm run admin:password -- "a long new password"   # set or reset it (12+ chars)
+```
+
+Resetting from the terminal also clears a lockout and signs out every browser.
+
+How it is protected:
+
+- Every admin page and server action calls `requireAdmin()`; sessions are
+  random tokens stored hashed in `admin_sessions` (7 days, `HttpOnly`,
+  `SameSite=Lax`, `Secure` in production). Sign-out deletes the session row.
+- 5 wrong passwords lock the account for 15 minutes. Attempts are counted
+  atomically, so parallel requests can't bypass the limit. Note that anyone
+  who knows the admin email can trigger the lockout on purpose; the reset
+  command above is the way back in.
+- `proxy.ts` gives `/admin` a strict nonce-based Content Security Policy and
+  refuses cross-site POSTs; `next.config.ts` sets the other security headers.
+
+## Security notes for deployment
+
+- `/api/contact` and `/api/track` only accept same-origin `application/json`
+  requests with small bodies. The contact form allows 5 messages per IP and
+  60 site-wide per 10 minutes; client IPs come from `x-real-ip` /
+  `x-forwarded-for`, which Vercel sets. When self-hosting, make sure your
+  reverse proxy overwrites those headers.
+- Per-instance in-memory limits (`app/lib/rate-limit.ts`) are a first line
+  only. For stronger guarantees add platform rate limiting (e.g. Vercel
+  Firewall rules on `/api/*` and `/admin/login`).
+
+## Editing content
+
+Almost all copy lives in `app/data/site.ts` — services, process steps,
+benefits, navigation and contact details. Change it there rather than in the
+components.
+
+Brand assets: `public/logo-full.png` (lockup used in the navbar and footer),
+`public/hero-mark.png` (large icon in the hero), `public/logo-mark.png`, and
+`app/icon.png` / `app/apple-icon.png` / `app/favicon.ico` for browser tabs.
+
+## Structure
+
+```
+app/
+  admin/                 dashboard, login, change password, server actions
+  api/contact/route.ts   saves an enquiry to Neon
+  api/track/route.ts     records page views and service clicks
+  components/            Navbar, Hero, Services, Process, WhyUs, Contact, Footer
+  data/site.ts           all site copy and config
+  lib/auth.ts            admin sessions, password hashing, lockout
+  lib/db.ts              Neon client and row types
+  lib/track.ts           client-side analytics helper
+  globals.css            brand tokens and card/aurora utilities
+proxy.ts                 strict CSP for /admin
+scripts/init-db.mjs      creates the tables (npm run db:init)
+public/hero-mark.png     logo mark used in the hero
+```

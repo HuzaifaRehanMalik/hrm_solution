@@ -1,0 +1,2 @@
+-- The source of truth for this site's database is scripts/init-db.mjs.
+-- Run it with:  npm run db:init

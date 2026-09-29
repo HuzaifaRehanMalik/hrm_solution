@@ -1,28 +1,30 @@
 export default function SectionHeading({
-  index,
+  eyebrow,
   title,
   description,
+  align = "left",
 }: {
-  index: string;
+  eyebrow: string;
   title: string;
   description?: string;
+  align?: "left" | "center";
 }) {
+  const centered = align === "center";
   return (
-    <div className="mb-10 flex items-start gap-4 sm:mb-14">
-      <span
-        aria-hidden="true"
-        className="font-mono text-sm text-accent pt-1.5"
-      >
-        {index}
-      </span>
-      <div className="flex-1 border-t border-border pt-1.5">
-        <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-          {title}
-        </h2>
-        {description ? (
-          <p className="mt-3 max-w-2xl text-muted">{description}</p>
-        ) : null}
-      </div>
+    <div
+      className={`mb-12 max-w-2xl sm:mb-16 ${centered ? "mx-auto text-center" : ""}`}
+    >
+      <p className="font-mono text-xs tracking-[0.2em] text-accent">
+        {eyebrow.toUpperCase()}
+      </p>
+      <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+        {title}
+      </h2>
+      {description ? (
+        <p className="mt-4 text-base leading-relaxed text-muted sm:text-lg">
+          {description}
+        </p>
+      ) : null}
     </div>
   );
 }
