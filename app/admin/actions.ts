@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getSql } from "@/app/lib/db";
+import { getSql, rows } from "@/app/lib/db";
 import {
   ADMIN_EMAIL,
   MAX_PASSWORD_LENGTH,
@@ -19,8 +19,15 @@ import { createRateLimiter } from "@/app/lib/rate-limit";
 
 export type FormState = { error?: string; success?: string } | undefined;
 
+// Enquiry ids are a bigint in the live database (older schema) and a UUID in
+// fresh installs, so accept either shape.
 const UUID =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const BIGINT_ID = /^[1-9][0-9]{0,18}$/;
+
+function isEnquiryId(id: string) {
+  return UUID.test(id) || BIGINT_ID.test(id);
+}
 
 // A stolen session shouldn't be a way to brute-force the current password.
 const currentPasswordLimit = createRateLimiter({
@@ -141,10 +148,15 @@ export async function setEnquiryStatus(formData: FormData) {
 
   const id = field(formData, "id");
   const status = field(formData, "status");
-  if (!UUID.test(id) || (status !== "new" && status !== "accomplished"))
+  if (!isEnquiryId(id) || (status !== "new" && status !== "accomplished")) {
+    console.error("setEnquiryStatus: rejected input", { id, status });
     return;
+  }
 
-  await getSql()`update enquiries set status = ${status} where id = ${id}`;
+  const updated = rows<{ id: string }>(
+    await getSql()`update enquiries set status = ${status} where id::text = ${id} returning id`,
+  );
+  if (updated.length === 0) console.error("setEnquiryStatus: no row with id", id);
   revalidatePath("/admin");
 }
 
@@ -152,8 +164,14 @@ export async function deleteEnquiry(formData: FormData) {
   await requireAdmin();
 
   const id = field(formData, "id");
-  if (!UUID.test(id)) return;
+  if (!isEnquiryId(id)) {
+    console.error("deleteEnquiry: rejected id", id);
+    return;
+  }
 
-  await getSql()`delete from enquiries where id = ${id}`;
+  const deleted = rows<{ id: string }>(
+    await getSql()`delete from enquiries where id::text = ${id} returning id`,
+  );
+  if (deleted.length === 0) console.error("deleteEnquiry: no row with id", id);
   revalidatePath("/admin");
 }

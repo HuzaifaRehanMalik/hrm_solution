@@ -33,7 +33,7 @@ export function getSql() {
 export type EnquiryStatus = "new" | "accomplished" | "handled";
 
 export type Enquiry = {
-  id: string;
+  id: string; // bigint (as text) on the live DB, uuid on fresh installs
   name: string;
   email: string;
   company: string | null;
