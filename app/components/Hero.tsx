@@ -1,108 +1,138 @@
 import type { CSSProperties } from "react";
 import Icon from "@/app/components/Icon";
+import HeroSpotlight from "@/app/components/hero/HeroSpotlight";
+import HeroStage from "@/app/components/hero/HeroStage";
+import SplitReveal from "@/app/components/ui/SplitReveal";
+import VelocityMarquee from "@/app/components/ui/VelocityMarquee";
+import ArrowRight from "@/app/components/ui/ArrowRight";
+import MagneticLink from "@/app/components/ui/MagneticLink";
 import { benefits, siteConfig, stack } from "@/app/data/site";
 
-export default function Hero() {
-  const [brandFirst, ...brandRest] = siteConfig.brand.split(" ");
+const delay = (ms: number) => ({ "--hero-delay": `${ms}ms` }) as CSSProperties;
 
+export default function Hero() {
   return (
     <section
       id="top"
       aria-label="Introduction"
-      className="relative overflow-hidden border-b border-border"
+      className="relative overflow-hidden"
     >
       <div aria-hidden="true" className="absolute inset-0 bg-aurora" />
-      <div aria-hidden="true" className="absolute inset-0 bg-grid opacity-60" />
+      <div aria-hidden="true" className="absolute inset-0 bg-grid opacity-70" />
+      <HeroSpotlight />
 
-      <div className="relative mx-auto max-w-7xl px-5 pb-20 pt-14 sm:px-8 sm:pb-28 sm:pt-20">
-        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
-          <div>
-            <p className="hero-enter font-mono text-xs tracking-[0.25em] text-accent">
-              {siteConfig.tagline.toUpperCase()}
-            </p>
-
-            <h1
-              className="hero-enter mt-6 text-5xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-6xl lg:text-7xl"
-              style={{ "--hero-delay": "90ms" } as CSSProperties}
+      <div className="relative mx-auto flex min-h-[calc(100dvh-73px)] max-w-[1400px] flex-col justify-center px-5 pb-16 pt-12 sm:px-8 lg:px-10 lg:pb-20 lg:pt-10">
+        <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-8">
+          {/* Copy */}
+          <div className="lg:col-span-7 lg:pr-8">
+            <div
+              className="hero-enter flex flex-wrap items-center gap-x-4 gap-y-2"
+              style={delay(0)}
             >
-              {brandFirst}{" "}
-              <span className="bg-gradient-to-r from-accent to-accent-deep bg-clip-text text-transparent">
-                {brandRest.join(" ")}
+              <span className="text-sm font-medium tracking-tight text-foreground">
+                {siteConfig.brand}
               </span>
-            </h1>
+              <span aria-hidden="true" className="h-3 w-px bg-border-strong" />
+              <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted">
+                AI engineering studio
+              </span>
+            </div>
+
+            <SplitReveal
+              as="h1"
+              onMount
+              delay={0.1}
+              text="Manual work, rebuilt as systems that run themselves."
+              accent={["systems"]}
+              className="mt-8 max-w-[14ch] text-balance text-[2.6rem] font-medium leading-[0.98] tracking-tighter text-foreground sm:text-6xl lg:text-[4.6rem]"
+            />
 
             <p
-              className="hero-enter mt-6 max-w-xl text-xl font-medium leading-snug text-foreground sm:text-2xl"
-              style={{ "--hero-delay": "180ms" } as CSSProperties}
+              className="hero-enter mt-8 max-w-[52ch] text-base leading-relaxed text-muted sm:text-lg"
+              style={delay(180)}
             >
-              We build AI-powered internal tools and workflow automation for
-              businesses.
-            </p>
-
-            <p
-              className="hero-enter mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg"
-              style={{ "--hero-delay": "260ms" } as CSSProperties}
-            >
-              Turning manual work into intelligent systems, so your team saves
-              time, makes fewer mistakes, and spends the day on what actually
-              moves the business forward.
+              We design and ship AI agents, workflow automation and internal
+              tools for businesses, so your team stops copying data between
+              tabs and spends the day on work that needs a person.
             </p>
 
             <div
-              className="hero-enter mt-10 flex flex-wrap items-center gap-4"
-              style={{ "--hero-delay": "360ms" } as CSSProperties}
+              className="hero-enter mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
+              style={delay(280)}
             >
-              <a
-                href="#contact"
-                className="btn-tactile inline-flex items-center gap-2 rounded-sm bg-accent px-7 py-3.5 text-sm font-medium text-accent-foreground transition-opacity hover:opacity-90"
-              >
-                Let&apos;s Build Together
-                <span aria-hidden="true">&rarr;</span>
-              </a>
-              <a
-                href="#services"
-                className="btn-tactile rounded-sm border border-border-strong px-7 py-3.5 text-sm font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
-              >
+              <MagneticLink href="#contact">
+                Start a project
+                <ArrowRight />
+              </MagneticLink>
+              <MagneticLink href="#services" variant="ghost" strength={0.15}>
                 See what we build
-              </a>
+              </MagneticLink>
             </div>
+
+            <p
+              className="hero-enter mt-8 font-mono text-[11px] uppercase tracking-[0.18em] text-subtle"
+              style={delay(360)}
+            >
+              {siteConfig.promise}
+            </p>
           </div>
 
-          <div className="order-first flex justify-center lg:order-none lg:justify-end">
-            <div className="relative aspect-square w-52 sm:w-64 lg:w-full lg:max-w-[26rem]">
-              <div
-                aria-hidden="true"
-                className="hero-ambient-glow absolute inset-[6%]"
-              />
-              <div aria-hidden="true" className="logo-graded absolute inset-0" />
-            </div>
+          {/* Visual: graded brand mark with a live agent run in front of it */}
+          <div className="relative lg:col-span-5">
+            <HeroStage />
           </div>
         </div>
 
-        <dl className="mt-16 grid grid-cols-2 gap-x-6 gap-y-8 border-t border-border pt-10 lg:grid-cols-4">
-          {benefits.map((benefit) => (
-            <div key={benefit.title}>
-              <dt className="flex items-center gap-2.5 text-sm font-medium text-foreground">
-                <Icon name={benefit.icon} className="h-5 w-5 text-accent" />
+        {/* Outcomes — hairline grid, no boxes */}
+        <dl className="mt-20 grid grid-cols-1 gap-px border-y border-border bg-border sm:grid-cols-2 lg:mt-24 lg:grid-cols-4">
+          {benefits.map((benefit, index) => (
+            <div
+              key={benefit.title}
+              className="hero-enter bg-background py-7 sm:px-6"
+              style={delay(420 + index * 70)}
+            >
+              <dt className="flex items-center gap-3 text-sm font-medium text-foreground">
+                <span className="font-mono text-[11px] text-subtle">
+                  0{index + 1}
+                </span>
+                <Icon name={benefit.icon} className="h-4 w-4 text-accent" />
                 {benefit.title}
               </dt>
-              <dd className="mt-2 text-sm leading-relaxed text-muted">
+              <dd className="mt-3 max-w-[34ch] text-sm leading-relaxed text-muted">
                 {benefit.description}
               </dd>
             </div>
           ))}
         </dl>
+      </div>
 
-        <div className="mt-14 flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-xs text-muted">
-          <span className="tracking-[0.2em]">BUILT WITH</span>
-          {stack.map((item) => (
-            <span
-              key={item}
-              className="rounded-sm border border-border px-3 py-1"
-            >
-              {item}
-            </span>
-          ))}
+      {/* Stack marquee */}
+      <div className="marquee relative border-y border-border bg-surface/40">
+        <div className="mx-auto flex max-w-[1400px] items-center">
+          <p className="hidden shrink-0 border-r border-border px-8 py-4 font-mono text-[11px] uppercase tracking-[0.22em] text-subtle sm:block lg:px-10">
+            Built with
+          </p>
+          <div
+            className="relative flex-1 overflow-hidden"
+            style={{
+              maskImage:
+                "linear-gradient(90deg, transparent, black 8%, black 92%, transparent)",
+            }}
+          >
+            <VelocityMarquee>
+              <ul className="flex">
+                {stack.map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-center gap-8 px-4 py-4 font-mono text-xs text-muted"
+                  >
+                    {item}
+                    <span aria-hidden="true" className="h-1 w-1 bg-border-strong" />
+                  </li>
+                ))}
+              </ul>
+            </VelocityMarquee>
+          </div>
         </div>
       </div>
     </section>

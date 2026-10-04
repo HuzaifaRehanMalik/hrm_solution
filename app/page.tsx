@@ -6,6 +6,7 @@ import PageViewTracker from "@/app/components/PageViewTracker";
 import Process from "@/app/components/Process";
 import Services from "@/app/components/Services";
 import WhyUs from "@/app/components/WhyUs";
+import ScrollTop from "@/app/components/ui/ScrollTop";
 
 export default function Home() {
   return (
@@ -20,6 +21,7 @@ export default function Home() {
         <Contact />
       </main>
       <Footer />
+      <ScrollTop />
     </>
   );
 }

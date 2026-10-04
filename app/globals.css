@@ -1,17 +1,24 @@
 @import "tailwindcss";
 
+/* ---------------------------------------------------------------------- */
+/* Tokens. One neutral family (cool navy-zinc) + one accent (brand teal). */
+/* ---------------------------------------------------------------------- */
+
 :root {
-  --background: #040a10;
-  --surface: #0a141c;
-  --surface-raised: #0e1a24;
-  --foreground: #e9f3f6;
-  --muted: #8ea4b0;
-  --border: #1a2b37;
-  --border-strong: #26414f;
+  --background: #060b10;
+  --surface: #0a1218;
+  --surface-raised: #0f1a22;
+  --foreground: #e6eef1;
+  --muted: #8a9ba5;
+  --subtle: #5d6f7a;
+  --border: #16222b;
+  --border-strong: #22343f;
   --brand: #287b83;
-  --accent: #5ce1e6;
-  --accent-deep: #2db8c4;
-  --accent-foreground: #032025;
+  --accent: #58d5db;
+  --accent-deep: #2aa9b4;
+  --accent-foreground: #04191c;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @theme inline {
@@ -20,6 +27,7 @@
   --color-surface-raised: var(--surface-raised);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-brand: var(--brand);
@@ -33,6 +41,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
+  font-feature-settings: "ss01", "cv11";
 }
 
 ::selection {
@@ -43,85 +52,140 @@ body {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-  border-radius: 2px;
+  border-radius: 0;
 }
 
-/* Ambient teal light, as in the brand banner. */
+/* ---------------------------------------------------------------------- */
+/* Atmosphere                                                             */
+/* ---------------------------------------------------------------------- */
+
+/* Film grain. Fixed + pointer-events-none so it never repaints on scroll. */
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 70;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Soft teal light, as in the brand banner. Used sparingly. */
 .bg-aurora {
   background-image:
     radial-gradient(
-      60rem 40rem at 85% -10%,
-      color-mix(in oklab, var(--accent) 16%, transparent),
+      55rem 38rem at 88% -12%,
+      color-mix(in oklab, var(--accent) 11%, transparent),
       transparent 70%
     ),
     radial-gradient(
-      45rem 35rem at 0% 30%,
-      color-mix(in oklab, var(--brand) 22%, transparent),
+      40rem 32rem at -5% 35%,
+      color-mix(in oklab, var(--brand) 16%, transparent),
       transparent 65%
     );
 }
 
+/* Engineering-paper grid, faded out from the top. */
 .bg-grid {
   background-image:
     linear-gradient(to right, var(--border) 1px, transparent 1px),
     linear-gradient(to bottom, var(--border) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(70% 60% at 50% 0%, black, transparent 80%);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(80% 70% at 30% 0%, black, transparent 78%);
 }
 
-/* Card surface with a lit top edge. */
-.card {
-  position: relative;
-  border: 1px solid var(--border);
-  border-radius: 0.25rem;
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in oklab, var(--accent) 4%, transparent),
-      transparent 45%
-    ),
-    var(--surface);
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
-}
-
-.card-hover:hover,
-.card-hover:focus-within {
-  border-color: color-mix(in oklab, var(--accent) 55%, var(--border));
-  box-shadow:
-    0 0 0 1px color-mix(in oklab, var(--accent) 18%, transparent),
-    0 22px 48px -22px color-mix(in oklab, var(--accent) 65%, transparent);
-  transform: translateY(-3px) scale(1.01);
-}
-
-.divider-glow {
+/* Hairline that fades at both ends. */
+.rule-fade {
   height: 1px;
   background: linear-gradient(
     90deg,
     transparent,
-    color-mix(in oklab, var(--accent) 55%, transparent),
+    var(--border-strong) 20%,
+    var(--border-strong) 80%,
     transparent
   );
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: var(--reveal-delay, 0ms);
-}
-
-.reveal.is-visible .divider-glow {
-  transform: scaleX(1);
 }
 
 /* ---------------------------------------------------------------------- */
-/* Motion: entrance, scroll reveal, ambient glow, tactile buttons.        */
+/* Surfaces                                                               */
+/* ---------------------------------------------------------------------- */
+
+/* Base panel: hairline border + lit top edge (inner refraction). */
+.card {
+  position: relative;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.035);
+  transition:
+    border-color 300ms var(--ease-out-expo),
+    transform 300ms var(--ease-out-expo);
+}
+
+.card-hover:hover,
+.card-hover:focus-within {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+/* Spotlight border: a radial light follows the pointer along the edge.
+   --mx / --my are written straight to the element's style (no React state). */
+.spotlight {
+  --mx: 50%;
+  --my: 50%;
+  isolation: isolate;
+}
+
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  background: radial-gradient(
+    22rem circle at var(--mx) var(--my),
+    color-mix(in oklab, var(--accent) 70%, transparent),
+    transparent 45%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 400ms var(--ease-out-expo);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.spotlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    30rem circle at var(--mx) var(--my),
+    color-mix(in oklab, var(--accent) 6%, transparent),
+    transparent 50%
+  );
+  opacity: 0;
+  transition: opacity 400ms var(--ease-out-expo);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.spotlight:hover::before,
+.spotlight:hover::after,
+.spotlight:focus-within::before,
+.spotlight:focus-within::after {
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Motion primitives                                                      */
 /* ---------------------------------------------------------------------- */
 
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -129,45 +193,79 @@ body {
   }
 }
 
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
 @keyframes glow-drift {
   0%,
   100% {
-    opacity: 0.5;
+    opacity: 0.45;
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    opacity: 0.8;
-    transform: translate3d(0, -2%, 0) scale(1.08);
+    opacity: 0.7;
+    transform: translate3d(0, -3%, 0) scale(1.06);
   }
 }
 
-/* Hero entrance: fades/slides up once on load, staggered via --hero-delay. */
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+/* Hero entrance, staggered via --hero-delay. */
 .hero-enter {
   opacity: 0;
-  animation: fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fade-up 900ms var(--ease-out-expo) forwards;
   animation-delay: var(--hero-delay, 0ms);
 }
 
-/* Soft ambient light behind the hero logo mark. Deliberately borderless and
-   blurred into a blob rather than a crisp circle, it's ambience, not a badge. */
-.hero-ambient-glow {
-  background: radial-gradient(
-    closest-side,
-    color-mix(in oklab, var(--accent) 35%, transparent),
-    transparent 72%
-  );
-  filter: blur(32px);
-  animation: glow-drift 7s ease-in-out infinite;
-}
-
-/* Scroll reveal: opacity/transform only so nothing shifts layout. Toggled
-   once by useReveal(), staggered per item via --reveal-delay. */
+/* Scroll reveal: opacity/transform only. Toggled once by useReveal(). */
 .reveal {
   opacity: 0;
-  transform: translateY(18px);
+  transform: translateY(20px);
   transition:
-    opacity 650ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 650ms cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 800ms var(--ease-out-expo),
+    transform 800ms var(--ease-out-expo);
   transition-delay: var(--reveal-delay, 0ms);
 }
 
@@ -176,21 +274,140 @@ body {
   transform: translateY(0);
 }
 
-/* Tactile accent buttons: lift/press feedback, no abrupt state jumps. */
+.marquee-track {
+  animation: marquee 38s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Status dot with a breathing halo. */
+.pulse-dot {
+  position: relative;
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+}
+
+.pulse-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  animation: breathe 2.4s var(--ease-out-expo) infinite;
+}
+
+.shimmer-text {
+  background: linear-gradient(
+      90deg,
+      var(--muted) 0%,
+      var(--muted) 40%,
+      var(--foreground) 50%,
+      var(--muted) 60%,
+      var(--muted) 100%
+    )
+    0 0 / 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 1.8s linear infinite;
+}
+
+.caret {
+  display: inline-block;
+  width: 7px;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: var(--accent);
+  animation: blink 1s steps(1) infinite;
+}
+
+.flow-line {
+  stroke-dasharray: 4 8;
+  animation: dash-flow 1.2s linear infinite;
+}
+
+.hero-ambient-glow {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--accent) 26%, transparent),
+    transparent 72%
+  );
+  filter: blur(40px);
+  animation: glow-drift 8s ease-in-out infinite;
+}
+
+/* Tactile buttons: lift on hover, press on active. No outer glow. */
 .btn-tactile {
   transition:
-    transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 180ms ease,
-    opacity 180ms ease;
+    transform 220ms var(--ease-out-expo),
+    background-color 220ms ease,
+    border-color 220ms ease,
+    color 220ms ease,
+    opacity 220ms ease;
 }
 
 .btn-tactile:not(:disabled):hover {
-  transform: translateY(-1px) scale(1.015);
-  box-shadow: 0 14px 34px -16px color-mix(in oklab, var(--accent) 70%, transparent);
+  transform: translateY(-1px);
 }
 
 .btn-tactile:not(:disabled):active {
-  transform: translateY(0) scale(0.985);
+  transform: translateY(0) scale(0.98);
+}
+
+/* Primary button: a light band sweeps across on hover. */
+.btn-sweep {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.btn-sweep::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.35) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  transition: transform 700ms var(--ease-out-expo);
+}
+
+.btn-sweep:hover::before {
+  transform: translateX(120%);
+}
+
+/* Large outlined display type (footer wordmark). */
+.text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--border-strong);
+}
+
+/* The hero logo mark, graded from bright cyan into the deep brand teal.
+   The image is used as a mask so the gradient shows through the artwork. */
+.logo-graded {
+  -webkit-mask-image: url("/hero-mark.webp");
+  mask-image: url("/hero-mark.webp");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  background-image: linear-gradient(
+    158deg,
+    #8df3f8 0%,
+    var(--accent) 32%,
+    var(--accent-deep) 66%,
+    var(--brand) 100%
+  );
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -209,9 +426,8 @@ body {
     transform: none !important;
   }
 
-  .divider-glow,
-  .reveal.is-visible .divider-glow {
-    transform: scaleX(1) !important;
+  .marquee-track {
+    animation: none !important;
   }
 
   .card-hover:hover,
@@ -220,24 +436,4 @@ body {
   .btn-tactile:not(:disabled):active {
     transform: none !important;
   }
-}
-
-/* The hero logo mark, graded from bright cyan into the deep brand teal.
-   The PNG is used as a mask so the gradient shows through the artwork. */
-.logo-graded {
-  -webkit-mask-image: url("/hero-mark.webp");
-  mask-image: url("/hero-mark.webp");
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  background-image: linear-gradient(
-    158deg,
-    #8df3f8 0%,
-    var(--accent) 32%,
-    var(--accent-deep) 66%,
-    var(--brand) 100%
-  );
 }

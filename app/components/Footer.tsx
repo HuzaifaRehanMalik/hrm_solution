@@ -1,92 +1,98 @@
 import ArrowUpRight from "@/app/components/ArrowUpRight";
 import Logo from "@/app/components/Logo";
+import ArrowRight from "@/app/components/ui/ArrowRight";
+import Wordmark from "@/app/components/ui/Wordmark";
 import { navSections, siteConfig } from "@/app/data/site";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-border px-5 py-12 sm:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-sm">
-            <a href="#top" aria-label={`${siteConfig.brand} home`}>
-              <Logo className="h-9 w-auto" />
+    <footer className="relative overflow-hidden border-t border-border px-5 pt-20 sm:px-8 lg:px-10">
+      <div className="mx-auto max-w-[1400px]">
+        <div className="grid grid-cols-1 gap-14 lg:grid-cols-12 lg:gap-10">
+          <div className="lg:col-span-5">
+            <a href="#top" aria-label={`${siteConfig.brand} home`} className="inline-block">
+              <Logo className="h-10 w-auto" />
             </a>
-            <p className="mt-5 text-sm leading-relaxed text-muted">
-              Technology for real progress. AI agents, automation and custom
-              software for businesses that want their time back.
+            <p className="mt-6 max-w-[38ch] text-sm leading-relaxed text-muted">
+              AI agents, automation and custom software for businesses that
+              want their time back.
             </p>
-            <p className="mt-5 font-mono text-xs tracking-[0.2em] text-accent">
-              {siteConfig.promise.toUpperCase()}
-            </p>
+            <a
+              href="#contact"
+              className="group mt-8 inline-flex items-center gap-3 border-b border-border-strong pb-1 text-base tracking-tight text-foreground transition-colors hover:border-accent hover:text-accent"
+            >
+              Start a project
+              <ArrowRight />
+            </a>
           </div>
 
-          <div className="grid grid-cols-2 gap-10 sm:gap-16">
-            <nav aria-label="Footer">
-              <h2 className="font-mono text-xs tracking-[0.2em] text-muted">
-                SITE
-              </h2>
-              <ul className="mt-4 space-y-3 text-sm">
-                {navSections.map((section) => (
-                  <li key={section.id}>
-                    <a
-                      href={`#${section.id}`}
-                      className="text-foreground transition-colors hover:text-accent"
-                    >
-                      {section.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+          <nav aria-label="Footer" className="lg:col-span-2 lg:col-start-8">
+            <h2 className="font-mono text-[11px] uppercase tracking-[0.22em] text-subtle">
+              Site
+            </h2>
+            <ul className="mt-5 space-y-3 text-sm">
+              {navSections.map((section) => (
+                <li key={section.id}>
+                  <a
+                    href={`#${section.id}`}
+                    className="text-muted transition-colors hover:text-foreground"
+                  >
+                    {section.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-            <div>
-              <h2 className="font-mono text-xs tracking-[0.2em] text-muted">
-                ELSEWHERE
-              </h2>
-              <ul className="mt-4 space-y-3 text-sm">
-                <li>
-                  <a
-                    href={`mailto:${siteConfig.email}`}
-                    className="text-foreground transition-colors hover:text-accent"
-                  >
-                    Email
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={siteConfig.portfolioUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-1.5 text-foreground transition-colors hover:text-accent"
-                  >
-                    Portfolio
-                    <ArrowUpRight />
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={siteConfig.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-1.5 text-foreground transition-colors hover:text-accent"
-                  >
-                    GitHub
-                    <ArrowUpRight />
-                  </a>
-                </li>
-              </ul>
-            </div>
+          <div className="lg:col-span-3">
+            <h2 className="font-mono text-[11px] uppercase tracking-[0.22em] text-subtle">
+              Elsewhere
+            </h2>
+            <ul className="mt-5 space-y-3 text-sm">
+              <li>
+                <a
+                  href={`mailto:${siteConfig.email}`}
+                  className="break-all text-muted transition-colors hover:text-foreground"
+                >
+                  {siteConfig.email}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={siteConfig.portfolioUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-1.5 text-muted transition-colors hover:text-foreground"
+                >
+                  Founder portfolio
+                  <ArrowUpRight />
+                </a>
+              </li>
+              <li>
+                <a
+                  href={siteConfig.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-1.5 text-muted transition-colors hover:text-foreground"
+                >
+                  GitHub
+                  <ArrowUpRight />
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-3 border-t border-border pt-6 font-mono text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-16 flex flex-col gap-3 border-t border-border py-6 font-mono text-[11px] uppercase tracking-[0.18em] text-subtle sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} {siteConfig.brand}. All rights
-            reserved.
+            &copy; {new Date().getFullYear()} {siteConfig.brand}
           </p>
-          <p>WEB · AI · AUTOMATION · GROWTH</p>
+          <p>{siteConfig.promise}</p>
         </div>
       </div>
+
+      {/* Oversized outlined wordmark, cropped by the page edge. */}
+      <Wordmark text={siteConfig.brand} />
     </footer>
   );
 }

@@ -3,8 +3,10 @@
 import type { CSSProperties } from "react";
 import ArrowUpRight from "@/app/components/ArrowUpRight";
 import { LogoMark } from "@/app/components/Logo";
+import TiltCard from "@/app/components/ui/TiltCard";
 import SectionHeading from "@/app/components/SectionHeading";
 import { siteConfig } from "@/app/data/site";
+import { trackSpotlight } from "@/app/lib/spotlight";
 import { useReveal } from "@/app/lib/useReveal";
 
 const reasons = [
@@ -30,7 +32,7 @@ const reasons = [
   },
 ];
 
-function ReasonCard({
+function Reason({
   reason,
   index,
 }: {
@@ -42,13 +44,18 @@ function ReasonCard({
   return (
     <li
       ref={ref}
-      className={`card card-hover reveal p-6 sm:p-7 ${visible ? "is-visible" : ""}`}
-      style={{ "--reveal-delay": `${index * 90}ms` } as CSSProperties}
+      className={`reveal group bg-background p-7 transition-colors duration-500 hover:bg-surface sm:p-9 ${
+        visible ? "is-visible" : ""
+      }`}
+      style={{ "--reveal-delay": `${index * 80}ms` } as CSSProperties}
     >
-      <h3 className="text-base font-semibold text-foreground">
+      <span className="font-mono text-[11px] text-subtle transition-colors duration-300 group-hover:text-accent">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <h3 className="mt-10 max-w-[22ch] text-xl font-medium leading-snug tracking-tight text-foreground">
         {reason.title}
       </h3>
-      <p className="mt-2.5 text-sm leading-relaxed text-muted">
+      <p className="mt-3 max-w-[44ch] text-sm leading-relaxed text-muted">
         {reason.description}
       </p>
     </li>
@@ -56,61 +63,86 @@ function ReasonCard({
 }
 
 export default function WhyUs() {
+  const { ref, visible } = useReveal<HTMLElement>(0.2);
+
   return (
     <section
       id="why"
       aria-label="Why HRM Solution"
-      className="scroll-mt-24 border-b border-border px-5 py-20 sm:px-8 sm:py-28"
+      className="scroll-mt-20 px-5 py-24 sm:px-8 sm:py-32 lg:px-10"
     >
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-[1400px]">
         <SectionHeading
+          index="03"
           eyebrow="Why HRM Solution"
-          title="Small enough to care, technical enough to deliver"
+          title="Small enough to care. Technical enough to deliver."
           description="HRM Solution is a focused AI engineering studio. That shapes how the work is scoped, built and handed over."
         />
 
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-          <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:col-span-2">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+          <ul className="grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-2 lg:col-span-8">
             {reasons.map((reason, index) => (
-              <ReasonCard key={reason.title} reason={reason} index={index} />
+              <Reason key={reason.title} reason={reason} index={index} />
             ))}
           </ul>
 
-          <div className="card flex flex-col p-6 sm:p-7">
-            <LogoMark className="h-9 w-auto self-start" />
-            <p className="mt-6 font-mono text-xs tracking-[0.2em] text-accent">
-              WHO YOU WORK WITH
-            </p>
-            <h3 className="mt-3 text-lg font-semibold text-foreground">
-              {siteConfig.founder}
-            </h3>
-            <p className="text-sm text-muted">{siteConfig.founderRole}</p>
-            <p className="mt-5 flex-1 text-sm leading-relaxed text-muted">
-              Full-stack and AI developer building RAG pipelines, multi-agent
-              systems and production web applications. HRM Solution is where
-              that work is offered to businesses.
-            </p>
-            <div className="mt-6 flex flex-col gap-3 border-t border-border pt-5 text-sm">
-              <a
-                href={siteConfig.portfolioUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center gap-1.5 text-foreground transition-colors hover:text-accent"
-              >
-                Developer portfolio
-                <ArrowUpRight />
-              </a>
-              <a
-                href={siteConfig.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center gap-1.5 text-foreground transition-colors hover:text-accent"
-              >
-                GitHub
-                <ArrowUpRight />
-              </a>
+          <TiltCard className="lg:col-span-4" max={5}>
+          <aside
+            ref={ref}
+            onPointerMove={trackSpotlight}
+            className={`card spotlight reveal flex h-full flex-col overflow-hidden ${
+              visible ? "is-visible" : ""
+            }`}
+            style={{ "--reveal-delay": "200ms" } as CSSProperties}
+          >
+            <div className="relative flex items-end justify-between border-b border-border bg-surface-raised/50 px-7 pb-6 pt-10 sm:px-9">
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 bg-grid opacity-50"
+              />
+              <LogoMark className="relative h-14 w-auto" />
+              <span className="relative inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                <span className="pulse-dot" aria-hidden="true" />
+                Who you work with
+              </span>
             </div>
-          </div>
+
+            <div className="flex flex-1 flex-col px-7 py-7 sm:px-9 sm:py-8">
+              <h3 className="text-2xl font-medium tracking-tight text-foreground">
+                {siteConfig.founder}
+              </h3>
+              <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
+                {siteConfig.founderRole}
+              </p>
+              <p className="mt-6 flex-1 text-sm leading-relaxed text-muted">
+                Full-stack and AI developer building RAG pipelines,
+                multi-agent systems and production web applications. HRM
+                Solution is where that work is offered to businesses.
+              </p>
+
+              <div className="mt-8 grid grid-cols-2 gap-px border border-border bg-border text-sm">
+                <a
+                  href={siteConfig.portfolioUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center justify-between gap-2 bg-surface px-4 py-3.5 text-foreground transition-colors hover:bg-surface-raised hover:text-accent"
+                >
+                  Portfolio
+                  <ArrowUpRight />
+                </a>
+                <a
+                  href={siteConfig.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center justify-between gap-2 bg-surface px-4 py-3.5 text-foreground transition-colors hover:bg-surface-raised hover:text-accent"
+                >
+                  GitHub
+                  <ArrowUpRight />
+                </a>
+              </div>
+            </div>
+          </aside>
+          </TiltCard>
         </div>
       </div>
     </section>
